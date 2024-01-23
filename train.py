@@ -3,13 +3,12 @@ from datasets import load_dataset
 import torch
 
 
-torch.cuda.set_device(1)
+torch.cuda.set_device(0)
+
 def tokenize_function(examples):
-    concatenated_texts = []
-    for tweet_text in examples["tweet_text"]:
-        if tweet_text is None:
-            tweet_text = ""
-    return tokenizer(examples, padding="max_length", truncation=True, max_length=512)
+    tweet_texts = examples["tweet_text"]
+    tweet_texts = ["" if text is None else text for text in tweet_texts]
+    return tokenizer(tweet_texts, padding="max_length", truncation=True, max_length=512)
 
 
 tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-v0.1")
@@ -24,10 +23,14 @@ tokenized_datasets = dataset["train"].map(tokenize_function, batched=True)
 
 training_args = TrainingArguments(
     output_dir="test_trainer",
-    num_train_epochs=3,
-    per_device_train_batch_size=2,
+    num_train_epochs=5,
+    per_device_train_batch_size=1,
     gradient_accumulation_steps=2,
+    learning_rate=5e-5,
+    weight_decay=0.1,
+    evaluation_strategy="no",
     save_steps=10_000,
+    save_total_limit=2,
 )
 
 trainer = Trainer(

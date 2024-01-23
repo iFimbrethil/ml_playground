@@ -21,8 +21,8 @@ def tokenize_function(examples):
     tokenized_inputs["labels"] = [row[1:] + [tokenizer.pad_token_id] for row in tokenized_inputs["input_ids"]]
     return tokenized_inputs
 
-tokenizer = AutoTokenizer.from_pretrained("bigscience/bloom-560m")
-model = AutoModelForCausalLM.from_pretrained("bigscience/bloom-560m")
+tokenizer = AutoTokenizer.from_pretrained("bigscience/bloom-3b")
+model = AutoModelForCausalLM.from_pretrained("bigscience/bloom-3b")
 
 if tokenizer.pad_token is None:
     tokenizer.add_special_tokens({'pad_token': '[PAD]'})
@@ -35,7 +35,7 @@ tokenized_datasets = dataset["train"].map(tokenize_function, batched=True, remov
 
 training_args = TrainingArguments(
     output_dir="test_trainer",
-    num_train_epochs=5,
+    num_train_epochs=20,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=2,
     learning_rate=5e-5,
